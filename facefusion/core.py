@@ -126,9 +126,16 @@ def common_pre_check() -> bool:
 
 
 def processors_pre_check() -> bool:
-	for processor_module in get_processors_modules(state_manager.get_item('processors')):
+	print("DEBUG_CORE: Entering processors_pre_check()")
+	processor_names = state_manager.get_item('processors')
+	print(f"DEBUG_CORE: processors_pre_check() - Requested processors: {processor_names}")
+	for processor_module in get_processors_modules(processor_names):
+		print(f"DEBUG_CORE: processors_pre_check() - About to call pre_check() for {processor_module.__name__}")
 		if not processor_module.pre_check():
+			print(f"DEBUG_CORE: processors_pre_check() - pre_check() for {processor_module.__name__} FAILED")
 			return False
+		print(f"DEBUG_CORE: processors_pre_check() - pre_check() for {processor_module.__name__} SUCCEEDED")
+	print("DEBUG_CORE: Exiting processors_pre_check() - All processor pre_checks SUCCEEDED")
 	return True
 
 
@@ -319,20 +326,38 @@ def process_step(job_id : str, step_index : int, step_args : Args) -> bool:
 	apply_args(step_args, state_manager.set_item)
 
 	logger.info(wording.get('processing_step').format(step_current = step_index + 1, step_total = step_total), __name__)
-	if common_pre_check() and processors_pre_check():
-		error_code = conditional_process()
-		return error_code == 0
+	print("DEBUG_CORE: process_step() - About to call common_pre_check()")
+	common_ok = common_pre_check()
+	print(f"DEBUG_CORE: process_step() - common_pre_check() result: {common_ok}")
+	if common_ok:
+		print("DEBUG_CORE: process_step() - About to call processors_pre_check()")
+		processors_ok = processors_pre_check()
+		print(f"DEBUG_CORE: process_step() - processors_pre_check() result: {processors_ok}")
+		if processors_ok:
+			print("DEBUG_CORE: process_step() - About to call conditional_process()")
+			error_code = conditional_process()
+			print(f"DEBUG_CORE: process_step() - conditional_process() returned: {error_code}")
+			return error_code == 0
+	print("DEBUG_CORE: process_step() - Pre-checks FAILED or did not proceed to conditional_process")
 	return False
 
 
 def conditional_process() -> ErrorCode:
 	start_time = time()
+	print("DEBUG_CORE: Entering conditional_process()")
 
-	for processor_module in get_processors_modules(state_manager.get_item('processors')):
+	processor_names = state_manager.get_item('processors')
+	print(f"DEBUG_CORE: conditional_process() - Requested processors: {processor_names}")
+	for processor_module in get_processors_modules(processor_names):
+		print(f"DEBUG_CORE: conditional_process() - About to call pre_process('output') for {processor_module.__name__}")
 		if not processor_module.pre_process('output'):
+			print(f"DEBUG_CORE: conditional_process() - pre_process('output') for {processor_module.__name__} FAILED")
 			return 2
+		print(f"DEBUG_CORE: conditional_process() - pre_process('output') for {processor_module.__name__} SUCCEEDED")
 
+	print("DEBUG_CORE: conditional_process() - About to call conditional_append_reference_faces()")
 	conditional_append_reference_faces()
+	print("DEBUG_CORE: conditional_process() - Finished conditional_append_reference_faces()")
 
 	if is_image(state_manager.get_item('target_path')):
 		return process_image(start_time)
