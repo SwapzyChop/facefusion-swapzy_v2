@@ -383,8 +383,10 @@ def pre_check() -> bool:
 
 
 def pre_process(mode : ProcessMode) -> bool:
+	print("DEBUG_SWAPPER: Entering pre_process()")
 	if not has_image(state_manager.get_item('source_paths')):
 		logger.error(wording.get('choose_image_source') + wording.get('exclamation_mark'), __name__)
+		print("DEBUG_SWAPPER: Exiting pre_process() - Error: No source image")
 		return False
 	source_image_paths = filter_image_paths(state_manager.get_item('source_paths'))
 	source_frames = read_static_images(source_image_paths)
@@ -400,7 +402,9 @@ def pre_process(mode : ProcessMode) -> bool:
 		return False
 	if mode == 'output' and not same_file_extension(state_manager.get_item('target_path'), state_manager.get_item('output_path')):
 		logger.error(wording.get('match_target_and_output_extension') + wording.get('exclamation_mark'), __name__)
+		print("DEBUG_SWAPPER: Exiting pre_process() - Error: Target and output extension mismatch")
 		return False
+	print("DEBUG_SWAPPER: Exiting pre_process() - Success")
 	return True
 
 
@@ -419,6 +423,7 @@ def post_process() -> None:
 
 
 def swap_face(source_face : Face, target_face : Face, temp_vision_frame : VisionFrame) -> VisionFrame:
+	print(f"DEBUG_SWAPPER: Entering swap_face() for target_face (details if available, e.g., bounding_box: {target_face.bounding_box if target_face else 'None'})")
 	model_template = get_model_options().get('template')
 	model_size = get_model_options().get('size')
 	pixel_boost_size = unpack_resolution(state_manager.get_item('face_swapper_pixel_boost'))
@@ -449,11 +454,15 @@ def swap_face(source_face : Face, target_face : Face, temp_vision_frame : Vision
 
 	crop_mask = numpy.minimum.reduce(crop_masks).clip(0, 1)
 	temp_vision_frame = paste_back(temp_vision_frame, crop_vision_frame, crop_mask, affine_matrix)
+	print("DEBUG_SWAPPER: Exiting swap_face()")
 	return temp_vision_frame
 
 
 def forward_swap_face(source_face : Face, crop_vision_frame : VisionFrame) -> VisionFrame:
+	print("DEBUG_SWAPPER: Entering forward_swap_face()")
+	print("DEBUG_SWAPPER: Attempting to get 'face_swapper' from inference pool...")
 	face_swapper = get_inference_pool().get('face_swapper')
+	print("DEBUG_SWAPPER: Successfully got 'face_swapper' from inference pool.")
 	model_type = get_model_options().get('type')
 	face_swapper_inputs = {}
 
@@ -470,8 +479,11 @@ def forward_swap_face(source_face : Face, crop_vision_frame : VisionFrame) -> Vi
 			face_swapper_inputs[face_swapper_input.name] = crop_vision_frame
 
 	with conditional_thread_semaphore():
+		print("DEBUG_SWAPPER: About to run face_swapper.run() (ONNX inference)...")
 		crop_vision_frame = face_swapper.run(None, face_swapper_inputs)[0][0]
+		print("DEBUG_SWAPPER: Successfully ran face_swapper.run().")
 
+	print("DEBUG_SWAPPER: Exiting forward_swap_face()")
 	return crop_vision_frame
 
 
@@ -555,6 +567,7 @@ def get_reference_frame(source_face : Face, target_face : Face, temp_vision_fram
 
 
 def process_frame(inputs : FaceSwapperInputs) -> VisionFrame:
+	print("DEBUG_SWAPPER: Entering process_frame()")
 	reference_faces = inputs.get('reference_faces')
 	source_face = inputs.get('source_face')
 	target_vision_frame = inputs.get('target_vision_frame')
@@ -573,6 +586,7 @@ def process_frame(inputs : FaceSwapperInputs) -> VisionFrame:
 		if similar_faces:
 			for similar_face in similar_faces:
 				target_vision_frame = swap_face(source_face, similar_face, target_vision_frame)
+	print("DEBUG_SWAPPER: Exiting process_frame()")
 	return target_vision_frame
 
 
@@ -602,8 +616,11 @@ def process_frames(source_paths : List[str], queue_payloads : List[QueuePayload]
 
 
 def process_image(source_paths : List[str], target_path : str, output_path : str) -> None:
+	print("DEBUG_SWAPPER: Entering process_image()")
 	reference_faces = get_reference_faces() if 'reference' in state_manager.get_item('face_selector_mode') else None
+	print("DEBUG_SWAPPER: process_image() - Got reference_faces")
 	source_frames = read_static_images(source_paths)
+	print("DEBUG_SWAPPER: process_image() - Read source_frames")
 	source_faces = []
 
 	for source_frame in source_frames:
@@ -612,14 +629,18 @@ def process_image(source_paths : List[str], target_path : str, output_path : str
 		if temp_faces:
 			source_faces.append(get_first(temp_faces))
 	source_face = get_average_face(source_faces)
+	print("DEBUG_SWAPPER: process_image() - Got average source_face")
 	target_vision_frame = read_static_image(target_path)
+	print("DEBUG_SWAPPER: process_image() - Read target_vision_frame")
 	output_vision_frame = process_frame(
 	{
 		'reference_faces': reference_faces,
 		'source_face': source_face,
 		'target_vision_frame': target_vision_frame
 	})
+	print("DEBUG_SWAPPER: process_image() - Processed frame")
 	write_image(output_path, output_vision_frame)
+	print("DEBUG_SWAPPER: Exiting process_image()")
 
 
 def process_video(source_paths : List[str], temp_frame_paths : List[str]) -> None:
