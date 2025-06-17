@@ -349,15 +349,23 @@ def process_step(job_id : str, step_index : int, step_args : Args) -> bool:
 	if common_ok:
 		print("DEBUG_CORE: process_step() - common_ok is True. About to call processors_pre_check()", flush=True)
 		processors_ok = processors_pre_check()
-		print("DEBUG_CORE: process_step() - ########## JUST RETURNED FROM processors_pre_check. Result: {processors_ok} ##########", flush=True)
-		# print(f"DEBUG_CORE: process_step() - processors_pre_check() result is: {processors_ok}", flush=True) # Redundant with above
-		if processors_ok:
-			print("DEBUG_CORE: process_step() - processors_ok is True. About to call conditional_process()", flush=True)
-			error_code = conditional_process()
-			print(f"DEBUG_CORE: process_step() - conditional_process() returned: {error_code}", flush=True)
-			return error_code == 0
-		else:
-			print("DEBUG_CORE: process_step() - processors_ok is False. Not calling conditional_process.", flush=True)
+		# ATTEMPT TO PRINT IMMEDIATELY AFTER THE CALL
+		print("DEBUG_CORE: process_step() - ATTEMPTING PRINT IMMEDIATELY AFTER processors_pre_check() CALL.", flush=True)
+		print(f"DEBUG_CORE: process_step() - Value of processors_ok is: {processors_ok}", flush=True)
+		# FORCE EXIT TO SEE IF WE EVEN GET HERE
+		print("DEBUG_CORE: process_step() - FORCING EXIT NOW.", flush=True)
+		sys.exit("DEBUG_CORE_FORCED_EXIT") # Make sure sys is imported at the top of core.py
+
+		# Original logic below, now effectively commented out by the sys.exit above
+		# print("DEBUG_CORE: process_step() - ########## JUST RETURNED FROM processors_pre_check. Result: {processors_ok} ##########", flush=True)
+		# # print(f"DEBUG_CORE: process_step() - processors_pre_check() result is: {processors_ok}", flush=True) # Redundant with above
+		# if processors_ok:
+		# 	print("DEBUG_CORE: process_step() - processors_ok is True. About to call conditional_process()", flush=True)
+		# 	error_code = conditional_process()
+		# 	print(f"DEBUG_CORE: process_step() - conditional_process() returned: {error_code}", flush=True)
+		# 	return error_code == 0
+		# else:
+		# 	print("DEBUG_CORE: process_step() - processors_ok is False. Not calling conditional_process.", flush=True)
 	else:
 		print("DEBUG_CORE: process_step() - common_ok is False. Not calling processors_pre_check.", flush=True)
 	print("DEBUG_CORE: process_step() - Pre-checks FAILED or did not proceed to conditional_process. Returning False.", flush=True)
