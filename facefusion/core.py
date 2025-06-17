@@ -343,17 +343,22 @@ def process_step(job_id : str, step_index : int, step_args : Args) -> bool:
 	logger.info(wording.get('processing_step').format(step_current = step_index + 1, step_total = step_total), __name__)
 	print("DEBUG_CORE: process_step() - About to call common_pre_check()")
 	common_ok = common_pre_check()
-	print(f"DEBUG_CORE: process_step() - common_pre_check() result: {common_ok}")
+	print(f"DEBUG_CORE: process_step() - common_pre_check() result: {common_ok}", flush=True)
 	if common_ok:
-		print("DEBUG_CORE: process_step() - About to call processors_pre_check()")
+		print("DEBUG_CORE: process_step() - About to call processors_pre_check()", flush=True)
 		processors_ok = processors_pre_check()
-		print(f"DEBUG_CORE: process_step() - processors_pre_check() result: {processors_ok}")
+		print("DEBUG_CORE: process_step() - ########## JUST RETURNED FROM processors_pre_check ##########", flush=True)
+		print(f"DEBUG_CORE: process_step() - processors_pre_check() result is: {processors_ok}", flush=True)
 		if processors_ok:
-			print("DEBUG_CORE: process_step() - About to call conditional_process()")
+			print("DEBUG_CORE: process_step() - processors_ok is True. About to call conditional_process()", flush=True)
 			error_code = conditional_process()
-			print(f"DEBUG_CORE: process_step() - conditional_process() returned: {error_code}")
+			print(f"DEBUG_CORE: process_step() - conditional_process() returned: {error_code}", flush=True)
 			return error_code == 0
-	print("DEBUG_CORE: process_step() - Pre-checks FAILED or did not proceed to conditional_process")
+		else:
+			print("DEBUG_CORE: process_step() - processors_ok is False. Not calling conditional_process.", flush=True)
+	else:
+		print("DEBUG_CORE: process_step() - common_ok is False. Not calling processors_pre_check.", flush=True)
+	print("DEBUG_CORE: process_step() - Pre-checks FAILED or did not proceed to conditional_process. Returning False.", flush=True)
 	return False
 
 
