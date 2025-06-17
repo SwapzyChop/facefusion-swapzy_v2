@@ -119,30 +119,25 @@ def common_pre_check() -> bool:
 		face_detector,    # 2
 		face_landmarker,  # 3
 		face_masker,      # 4
-		face_recognizer,  # 5
-		voice_extractor   # 6
+		face_recognizer  # 5
+		# voice_extractor   # 6 - Temporarily removed
 	]
-	print(f"DEBUG_CORE: common_pre_check() - Modules to check: {[m.__name__ for m in common_modules]}", flush=True)
+	print(f"DEBUG_CORE: common_pre_check() - Modules to check (voice_extractor REMOVED): {[m.__name__ for m in common_modules]}", flush=True)
 	for index, module in enumerate(common_modules):
 		print(f"DEBUG_CORE: common_pre_check() - LOOP START for {module.__name__} (index {index})", flush=True)
 		print(f"DEBUG_CORE: common_pre_check() - About to call pre_check() for {module.__name__} (index {index})", flush=True)
-		if module.__name__ == 'facefusion.voice_extractor':
-			print(f"DEBUG_CORE: common_pre_check() - FORCING EXIT BEFORE pre_check() of {module.__name__}", flush=True)
-			sys.exit(f"DEBUG_CORE_FORCED_EXIT_BEFORE_{module.__name__}")
+		# Removed the sys.exit before voice_extractor
 		try:
 			result = module.pre_check()
 		except Exception as e:
 			print(f"DEBUG_CORE: common_pre_check() - EXCEPTION during pre_check() for {module.__name__}: {e}", flush=True)
-			# sys.exit(f"EXITING_AFTER_EXCEPTION_IN_{module.__name__}") # Option to exit on exception
 			return False
 		print(f"DEBUG_CORE: common_pre_check() - pre_check() for {module.__name__} returned: {result}", flush=True)
 		if not result:
 			print(f"DEBUG_CORE: common_pre_check() - pre_check() for {module.__name__} FAILED. Returning False.", flush=True)
-			# sys.exit(f"EXITING_AFTER_FAIL_IN_{module.__name__}") # Option to exit on fail
 			return False
 		print(f"DEBUG_CORE: common_pre_check() - LOOP END for {module.__name__} (index {index}) - SUCCESS", flush=True)
-		# Removed the previous sys.exit after face_recognizer
-	print("DEBUG_CORE: common_pre_check() - All common pre_checks SUCCEEDED. Returning True.", flush=True)
+	print("DEBUG_CORE: common_pre_check() - All common pre_checks (excluding voice_extractor) SUCCEEDED. Returning True.", flush=True)
 	return True
 
 
