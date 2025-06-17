@@ -114,13 +114,13 @@ def common_pre_check() -> bool:
 	print("DEBUG_CORE: common_pre_check() - VERY TOP OF FUNCTION", flush=True)
 	common_modules =\
 	[
-		content_analyser,
-		face_classifier,
-		face_detector,
-		face_landmarker,
-		face_masker,
-		face_recognizer,
-		voice_extractor
+		content_analyser, # 0
+		face_classifier,  # 1
+		face_detector,    # 2
+		face_landmarker,  # 3
+		face_masker,      # 4
+		face_recognizer,  # 5
+		voice_extractor   # 6
 	]
 	print(f"DEBUG_CORE: common_pre_check() - Modules to check: {[m.__name__ for m in common_modules]}", flush=True)
 	for index, module in enumerate(common_modules):
@@ -129,12 +129,16 @@ def common_pre_check() -> bool:
 			result = module.pre_check()
 		except Exception as e:
 			print(f"DEBUG_CORE: common_pre_check() - EXCEPTION during pre_check() for {module.__name__}: {e}", flush=True)
+			# sys.exit(f"EXITING_AFTER_EXCEPTION_IN_{module.__name__}") # Option to exit on exception
 			return False
 		print(f"DEBUG_CORE: common_pre_check() - pre_check() for {module.__name__} returned: {result}", flush=True)
 		if not result:
 			print(f"DEBUG_CORE: common_pre_check() - pre_check() for {module.__name__} FAILED. Returning False.", flush=True)
+			# sys.exit(f"EXITING_AFTER_FAIL_IN_{module.__name__}") # Option to exit on fail
 			return False
-		print(f"DEBUG_CORE: common_pre_check() - LOOP END for {module.__name__} (index {index})", flush=True)
+		print(f"DEBUG_CORE: common_pre_check() - LOOP END for {module.__name__} (index {index}) - SUCCESS", flush=True)
+		# print(f"DEBUG_CORE: common_pre_check() - FORCING EXIT AFTER SUCCESS OF {module.__name__}", flush=True)
+		# sys.exit(f"DEBUG_CORE_FORCED_EXIT_AFTER_{module.__name__}")
 	print("DEBUG_CORE: common_pre_check() - All common pre_checks SUCCEEDED. Returning True.", flush=True)
 	return True
 
