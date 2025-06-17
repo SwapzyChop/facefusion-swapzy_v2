@@ -125,6 +125,10 @@ def common_pre_check() -> bool:
 	print(f"DEBUG_CORE: common_pre_check() - Modules to check: {[m.__name__ for m in common_modules]}", flush=True)
 	for index, module in enumerate(common_modules):
 		print(f"DEBUG_CORE: common_pre_check() - LOOP START for {module.__name__} (index {index})", flush=True)
+		print(f"DEBUG_CORE: common_pre_check() - About to call pre_check() for {module.__name__} (index {index})", flush=True)
+		if module.__name__ == 'facefusion.voice_extractor':
+			print(f"DEBUG_CORE: common_pre_check() - FORCING EXIT BEFORE pre_check() of {module.__name__}", flush=True)
+			sys.exit(f"DEBUG_CORE_FORCED_EXIT_BEFORE_{module.__name__}")
 		try:
 			result = module.pre_check()
 		except Exception as e:
@@ -137,9 +141,7 @@ def common_pre_check() -> bool:
 			# sys.exit(f"EXITING_AFTER_FAIL_IN_{module.__name__}") # Option to exit on fail
 			return False
 		print(f"DEBUG_CORE: common_pre_check() - LOOP END for {module.__name__} (index {index}) - SUCCESS", flush=True)
-		if module.__name__ == 'facefusion.face_recognizer': # NOW EXIT AFTER face_recognizer
-			print(f"DEBUG_CORE: common_pre_check() - FORCING EXIT AFTER SUCCESS OF {module.__name__}", flush=True)
-			sys.exit(f"DEBUG_CORE_FORCED_EXIT_AFTER_{module.__name__}")
+		# Removed the previous sys.exit after face_recognizer
 	print("DEBUG_CORE: common_pre_check() - All common pre_checks SUCCEEDED. Returning True.", flush=True)
 	return True
 
