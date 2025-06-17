@@ -137,7 +137,7 @@ def common_pre_check() -> bool:
 			# sys.exit(f"EXITING_AFTER_FAIL_IN_{module.__name__}") # Option to exit on fail
 			return False
 		print(f"DEBUG_CORE: common_pre_check() - LOOP END for {module.__name__} (index {index}) - SUCCESS", flush=True)
-		if module.__name__ == 'facefusion.voice_extractor': # Check if it's the last module in this iteration
+		if module.__name__ == 'facefusion.face_recognizer': # NOW EXIT AFTER face_recognizer
 			print(f"DEBUG_CORE: common_pre_check() - FORCING EXIT AFTER SUCCESS OF {module.__name__}", flush=True)
 			sys.exit(f"DEBUG_CORE_FORCED_EXIT_AFTER_{module.__name__}")
 	print("DEBUG_CORE: common_pre_check() - All common pre_checks SUCCEEDED. Returning True.", flush=True)
