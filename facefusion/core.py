@@ -126,22 +126,31 @@ def common_pre_check() -> bool:
 
 
 def processors_pre_check() -> bool:
-	print("DEBUG_CORE: Entering processors_pre_check()")
+	print("DEBUG_CORE: #############################################################", flush=True)
+	print("DEBUG_CORE: processors_pre_check() - VERY TOP OF FUNCTION", flush=True)
 	processor_names = state_manager.get_item('processors')
-	print(f"DEBUG_CORE: processors_pre_check() - Requested processors: {processor_names}")
-	modules_to_check = get_processors_modules(processor_names)
-	print(f"DEBUG_CORE: processors_pre_check() - Got processor modules: {[m.__name__ for m in modules_to_check]}")
+	print(f"DEBUG_CORE: processors_pre_check() - Requested processors: {processor_names}", flush=True)
+	try:
+		modules_to_check = get_processors_modules(processor_names)
+		print(f"DEBUG_CORE: processors_pre_check() - Got processor modules: {[m.__name__ for m in modules_to_check]}", flush=True)
+	except Exception as e:
+		print(f"DEBUG_CORE: processors_pre_check() - ERROR in get_processors_modules(): {e}", flush=True)
+		return False
 	for processor_module in modules_to_check:
-		print(f"DEBUG_CORE: processors_pre_check() - LOOP START for {processor_module.__name__}")
-		print(f"DEBUG_CORE: processors_pre_check() - About to call pre_check() for {processor_module.__name__}")
-		result = processor_module.pre_check()
-		print(f"DEBUG_CORE: processors_pre_check() - pre_check() for {processor_module.__name__} returned: {result}")
-		if not result:
-			print(f"DEBUG_CORE: processors_pre_check() - pre_check() for {processor_module.__name__} FAILED. Returning False.")
+		print(f"DEBUG_CORE: processors_pre_check() - LOOP START for {processor_module.__name__}", flush=True)
+		print(f"DEBUG_CORE: processors_pre_check() - About to call pre_check() for {processor_module.__name__}", flush=True)
+		try:
+			result = processor_module.pre_check()
+		except Exception as e:
+			print(f"DEBUG_CORE: processors_pre_check() - EXCEPTION during pre_check() for {processor_module.__name__}: {e}", flush=True)
 			return False
-		print(f"DEBUG_CORE: processors_pre_check() - pre_check() for {processor_module.__name__} SUCCEEDED.")
-		print(f"DEBUG_CORE: processors_pre_check() - LOOP END for {processor_module.__name__}")
-	print("DEBUG_CORE: Exiting processors_pre_check() - All processor pre_checks SUCCEEDED. Returning True.")
+		print(f"DEBUG_CORE: processors_pre_check() - pre_check() for {processor_module.__name__} returned: {result}", flush=True)
+		if not result:
+			print(f"DEBUG_CORE: processors_pre_check() - pre_check() for {processor_module.__name__} FAILED. Returning False.", flush=True)
+			return False
+		print(f"DEBUG_CORE: processors_pre_check() - pre_check() for {processor_module.__name__} SUCCEEDED.", flush=True)
+		print(f"DEBUG_CORE: processors_pre_check() - LOOP END for {processor_module.__name__}", flush=True)
+	print("DEBUG_CORE: Exiting processors_pre_check() - All processor pre_checks SUCCEEDED. Returning True.", flush=True)
 	return True
 
 
