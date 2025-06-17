@@ -339,16 +339,18 @@ def process_step(job_id : str, step_index : int, step_args : Args) -> bool:
 	step_total = job_manager.count_step_total(job_id)
 	step_args.update(collect_job_args())
 	apply_args(step_args, state_manager.set_item)
+	print("DEBUG_CORE: process_step() - COMPLETED apply_args", flush=True)
 
 	logger.info(wording.get('processing_step').format(step_current = step_index + 1, step_total = step_total), __name__)
-	print("DEBUG_CORE: process_step() - About to call common_pre_check()")
+	print("DEBUG_CORE: process_step() - Logged 'processing_step' info", flush=True)
+	print("DEBUG_CORE: process_step() - About to call common_pre_check()", flush=True)
 	common_ok = common_pre_check()
-	print(f"DEBUG_CORE: process_step() - common_pre_check() result: {common_ok}", flush=True)
+	print(f"DEBUG_CORE: process_step() - common_pre_check() returned: {common_ok}", flush=True)
 	if common_ok:
-		print("DEBUG_CORE: process_step() - About to call processors_pre_check()", flush=True)
+		print("DEBUG_CORE: process_step() - common_ok is True. About to call processors_pre_check()", flush=True)
 		processors_ok = processors_pre_check()
-		print("DEBUG_CORE: process_step() - ########## JUST RETURNED FROM processors_pre_check ##########", flush=True)
-		print(f"DEBUG_CORE: process_step() - processors_pre_check() result is: {processors_ok}", flush=True)
+		print("DEBUG_CORE: process_step() - ########## JUST RETURNED FROM processors_pre_check. Result: {processors_ok} ##########", flush=True)
+		# print(f"DEBUG_CORE: process_step() - processors_pre_check() result is: {processors_ok}", flush=True) # Redundant with above
 		if processors_ok:
 			print("DEBUG_CORE: process_step() - processors_ok is True. About to call conditional_process()", flush=True)
 			error_code = conditional_process()
