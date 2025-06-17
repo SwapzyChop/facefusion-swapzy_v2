@@ -379,7 +379,11 @@ def pre_check() -> bool:
 	model_hash_set = get_model_options().get('hashes')
 	model_source_set = get_model_options().get('sources')
 
-	return conditional_download_hashes(model_hash_set) and conditional_download_sources(model_source_set)
+	print("DEBUG_SWAPPER: pre_check() - About to call conditional_download_hashes/sources")
+	result = conditional_download_hashes(model_hash_set) and conditional_download_sources(model_source_set)
+	print(f"DEBUG_SWAPPER: pre_check() - conditional_download_hashes/sources returned: {result}")
+	print(f"DEBUG_SWAPPER: pre_check() - Exiting and returning {result}")
+	return result
 
 
 def pre_process(mode : ProcessMode) -> bool:
