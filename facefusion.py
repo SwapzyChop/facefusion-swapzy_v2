@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 
+import faulthandler
+faulthandler.enable()
+
 import os
 
 os.environ['OMP_NUM_THREADS'] = '1'
